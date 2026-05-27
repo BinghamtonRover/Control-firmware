@@ -43,6 +43,9 @@ void setup() {
   	pinMode(errorPin, OUTPUT);
 	Serial.begin(9600);
 
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, HIGH);
+
 	Serial.println("Initializing software...");
 	motorCan.setup();
 	serial.setup();
@@ -91,6 +94,7 @@ void sendData() {
 	driveData.has_back_right_motor = motors.data.has_back_right_motor;
 
 	driveData.front_left_motor = motors.data.front_left_motor;
+
 	driveData.front_right_motor = motors.data.front_right_motor;
 	driveData.middle_left_motor = motors.data.middle_left_motor;
 	driveData.middle_right_motor = motors.data.middle_right_motor;
@@ -146,11 +150,12 @@ void sendData() {
 }
 
 void handleCommand(const uint8_t* data, int length) {
+	
 	auto command = BurtProto::decode<ControlCommand>(data, length, ControlCommand_fields);
 	buttons.handleCommand(command.drive);
 	motors.handleCommand(command.drive);
 	cameras.handleCommand(command.drive);
 	led_strip.handleCommand(command.drive);
-
 	relays.handleCommand(command.relays);
+	
 }

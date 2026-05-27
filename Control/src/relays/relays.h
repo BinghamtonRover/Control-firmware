@@ -8,7 +8,8 @@
 // Drive Motors
 static const uint8_t bLeftRelayPin = 25;
 static const uint8_t bRightRelayPin = 19;
-static const uint8_t fLeftRelayPin = 29;
+
+static const uint8_t fLeftRelayPin = 4;
 static const uint8_t fRightRelayPin = 15;
 static const uint8_t mLeftRelayPin = 32;
 static const uint8_t mRightRelayPin = 39;
