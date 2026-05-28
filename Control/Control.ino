@@ -10,10 +10,6 @@
 #define DATA_SEND_INTERVAL 50  // ms (relays was 250 ms, drive was 50ms, so chose the smaller one)
 #define MOTOR_UPDATE_INTERVAL 10  // ms
 
-int16_t tfDist = 0;    // Distance to object in centimeters
-int16_t tfFlux = 0;    // Strength or quality of return signal
-int16_t tfTemp = 0;    // Internal temperature of Lidar sensor chip
-
 const Version version = {major: 1, minor: 3};
 
 const uint8_t errorPin = 33;
@@ -43,31 +39,9 @@ BurtTimer motorTimer(MOTOR_UPDATE_INTERVAL, updateMotors);
 BurtTimer blinkTimer(blinkInterval, updateLedStrip);
 
 void setup() {
-  pinMode(errorPin, OUTPUT);
-
-	Serial.begin(9600);
 	Serial.println("Initializing Drive subsystem");
-
-	Serial2.begin(115200);
-	delay(20);
-	tfmp.begin(&Serial2);
-
-	// safe reset lidar
-	if (tfmp.sendCommand(SOFT_RESET, 0)) {
-		Serial.println("LiDAR init success");
-		delay(500);
-	} else {
-		Serial.println("Error: Unexpected response from LiDAR");
-		tfmp.printReply();
-	}
-
-	if (tfmp.sendCommand(SET_FRAME_RATE, FRAME_20)) {
-		Serial.print("LiDAR rate: ");
-		Serial.print(FRAME_20);
-		Serial.println("Hz.");
-	} else {
-		tfmp.printReply();
-	}
+  	pinMode(errorPin, OUTPUT);
+	Serial.begin(9600);
 
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, HIGH);
@@ -103,13 +77,6 @@ void loop() {
 	relays.update();
 	dataTimer.update();
 	motorTimer.update();
-
-	int16_t dist;
-	if (tfmp.getData(dist)) {
-		tfDist = dist;
-	} else {
-		tfDist = 0;
-	}
 }
 
 void sendData() {
@@ -154,9 +121,6 @@ void sendData() {
 
 	// LED strip data
 	driveData.color = led_strip.data.color;
-
-	// Send LiDAR Dist
-	driveData.lidar_dist = tfDist;
 
 	// Version
 	driveData.has_version = true;
