@@ -40,7 +40,7 @@ BurtTimer blinkTimer(blinkInterval, updateLedStrip);
 
 void setup() {
 	Serial.println("Initializing Drive subsystem");
-  	pinMode(errorPin, OUTPUT);
+  pinMode(errorPin, OUTPUT);
 	Serial.begin(9600);
 
 	pinMode(LED_BUILTIN, OUTPUT);
