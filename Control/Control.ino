@@ -102,7 +102,12 @@ void loop() {
 	dataTimer.update();
 	motorTimer.update();
 
-	tfmp.getData(tfDist);
+	int16_t dist;
+	if (tfmp.getData(dist)) {
+		tfDist = dist;
+	} else {
+		tfDist = 0;
+	}
 }
 
 void sendData() {
