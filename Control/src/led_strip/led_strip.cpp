@@ -3,39 +3,40 @@
 
 #include "led_strip.h"
 
+// red pin = 2
+// green pin = 3
+// blue pin = 36
+
 void LedStrip::setup() {
-  FastLED.addLeds<LPD8806, dataPin, clockPin, BRG>(ledStrip, stripLength);
-  FastLED.setBrightness(255);
-  FastLED.setCorrection(TypicalLEDStrip);
-  blue();
+  pinMode(red, OUTPUT);
+  pinMode(blue, OUTPUT);
+  pinMode(green, OUTPUT);
+  digitalWrite(red, LOW);
+  digitalWrite(blue, LOW);
+  digitalWrite(green, LOW);
 }
 
 void LedStrip::setColor(ProtoColor color) {
-  CRGB toWrite = CRGB::Black;
+  // Turn off all pins first
+  digitalWrite(red, LOW);
+  digitalWrite(blue, LOW);
+  digitalWrite(green, LOW);
 
+  // Turn on the requested color
   switch (color) {
     case ProtoColor::ProtoColor_PROTO_COLOR_UNDEFINED:
     case ProtoColor::ProtoColor_UNLIT:
       break;
     case ProtoColor::ProtoColor_RED:
-      toWrite = CRGB::Red;
+      digitalWrite(red, HIGH);
       break;
     case ProtoColor::ProtoColor_GREEN:
-      toWrite = CRGB::Green;
+      digitalWrite(green, HIGH);
       break;
     case ProtoColor::ProtoColor_BLUE:
-      toWrite = CRGB::Blue;
+      digitalWrite(blue, HIGH);
       break;
   }
-
-  if (toWrite == writtenColor) {
-    return;
-  }
-  writtenColor = toWrite;
-  fill_solid(ledStrip, stripLength, toWrite);
-  noInterrupts();
-  FastLED.show();
-  interrupts();
 }
 
 void LedStrip::red() {

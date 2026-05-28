@@ -5,9 +5,9 @@
 
 const int blinkInterval = 250;  // ms
 
-constexpr uint8_t dataPin = 11;
-constexpr uint8_t clockPin = 8;
-constexpr int stripLength = 32;
+constexpr uint8_t red = 2;
+constexpr uint8_t blue = 3;
+constexpr uint8_t green = 36;
 
 /// The RGB LED strip that goes around the rover.
 class LedStrip {
@@ -16,17 +16,7 @@ class LedStrip {
     ///
     /// When #shouldBlink is true, #update will alternate this value to be on and off
     /// and light the LED strip accordingly.
-    bool isOn;
-
-    /// What the old color of the
-    ProtoColor oldColor = ProtoColor::ProtoColor_UNLIT;
-
-    CRGB ledStrip[stripLength];
-
-    void setColor(ProtoColor color);
-
-    CRGB writtenColor = 0;
-
+    
   public:
     /// The current status of the LED strip.
     DriveData data;
