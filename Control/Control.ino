@@ -51,9 +51,11 @@ void setup() {
 	tfmp.begin(&Serial2);
 
 	// safe reset lidar
-	if (tfmp.sendCommand(SOFT_RESET, 0)) Serial.println("LiDAR init success");
-	else {
-		Serial.println("Error: Unexpected response from LiDAR:\n");
+	if (tfmp.sendCommand(SOFT_RESET, 0)) {
+		Serial.println("LiDAR init success");
+		delay(500);
+	} else {
+		Serial.println("Error: Unexpected response from LiDAR");
 		tfmp.printReply();
 	}
 
