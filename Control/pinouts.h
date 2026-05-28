@@ -8,6 +8,7 @@
 #include "src/voltage/voltage.h"
 #include "src/temperature/temperature.h"
 #include "src/relays/relays.h"
+#include "src/TFMini-Plus/src/TFMPlus.h"
 
 Relays relays;
 
