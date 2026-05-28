@@ -43,9 +43,11 @@ BurtTimer motorTimer(MOTOR_UPDATE_INTERVAL, updateMotors);
 BurtTimer blinkTimer(blinkInterval, updateLedStrip);
 
 void setup() {
-	Serial.println("Initializing Drive subsystem");
   pinMode(errorPin, OUTPUT);
+
 	Serial.begin(9600);
+	Serial.println("Initializing Drive subsystem");
+
 	Serial2.begin(115200);
 	delay(20);
 	tfmp.begin(&Serial2);
