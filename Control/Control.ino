@@ -61,11 +61,13 @@ void setup() {
 		tfmp.printReply();
 	}
 
-	if( tfmP.sendCommand( SET_FRAME_RATE, FRAME_20))
-    {
-      Serial.println( "LiDAR rate: %2uHz.\r\n", FRAME_20);
-    }
-	else tfmP.printReply();
+	if (tfmp.sendCommand(SET_FRAME_RATE, FRAME_20)) {
+		Serial.print("LiDAR rate: ");
+		Serial.print(FRAME_20);
+		Serial.println("Hz.");
+	} else {
+		tfmp.printReply();
+	}
 
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, HIGH);
