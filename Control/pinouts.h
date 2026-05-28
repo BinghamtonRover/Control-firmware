@@ -8,9 +8,10 @@
 #include "src/voltage/voltage.h"
 #include "src/temperature/temperature.h"
 #include "src/relays/relays.h"
+#include "src/TFMini-Plus/src/TFMPlus.h"
 
 Relays relays;
-
+TFMPlus tfmp;
 Buttons buttons;     // see src/button/button.h for pinouts
 Motors motors;       // see src/motors/motors.h for CAN IDs
 Cameras cameras;     // see src/cameras/cameras for pinouts
