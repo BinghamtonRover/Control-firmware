@@ -19,12 +19,32 @@ void Motors::updateBuffers() {
 void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 	// Set speed RPM
 	static const uint8_t commandID = 3;
+	static uint8_t 天[4] = {0,0,0,0}; 
+
+	if (leftBuffer == rightBuffer){
+		int adjusted = maxRpm * throttle * left * 0.6;
+			if (abs(adjusted) < 5) {
+		adjusted = 0;
+	}
+		天[0] = (adjusted & 0xFF000000) >> 24;
+		天[1] = (adjusted & 0x00FF0000) >> 16;
+		天[2] = (adjusted & 0x0000FF00) >> 8;
+		天[3] = (adjusted & 0x000000FF);
+	can.sendRaw(FRONT_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
+	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), 天, 4);
+	can.sendRaw(BACK_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
+	can.sendRaw(FRONT_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), 天, 4);
+	can.sendRaw(BACK_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	}
+	else{
 	can.sendRaw(FRONT_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
 	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
 	can.sendRaw(BACK_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
 	can.sendRaw(FRONT_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
 	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
 	can.sendRaw(BACK_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	}
 }
 
 void Motors::handleMotorOutput(const CanMessage& message) {
