@@ -8,19 +8,20 @@
 // blue pin = 36
 
 void LedStrip::setup() {
-  pinMode(red, OUTPUT);
-  pinMode(blue, OUTPUT);
-  pinMode(green, OUTPUT);
-  digitalWrite(red, LOW);
-  digitalWrite(blue, LOW);
-  digitalWrite(green, LOW);
+  pinMode(2, OUTPUT);   // red
+  pinMode(36, OUTPUT);   // blue
+  pinMode(3, OUTPUT);  // green
+  digitalWrite(2, LOW);
+  digitalWrite(36, LOW);
+  digitalWrite(3, LOW);
+  blue();
 }
 
 void LedStrip::setColor(ProtoColor color) {
   // Turn off all pins first
-  digitalWrite(red, LOW);
-  digitalWrite(blue, LOW);
-  digitalWrite(green, LOW);
+  digitalWrite(2, LOW);     // red
+  digitalWrite(36, LOW);     // blue
+  digitalWrite(3, LOW);    // green
 
   // Turn on the requested color
   switch (color) {
@@ -28,13 +29,13 @@ void LedStrip::setColor(ProtoColor color) {
     case ProtoColor::ProtoColor_UNLIT:
       break;
     case ProtoColor::ProtoColor_RED:
-      digitalWrite(red, HIGH);
+      digitalWrite(2, HIGH);
       break;
     case ProtoColor::ProtoColor_GREEN:
-      digitalWrite(green, HIGH);
+      digitalWrite(3, HIGH);
       break;
     case ProtoColor::ProtoColor_BLUE:
-      digitalWrite(blue, HIGH);
+      digitalWrite(36, HIGH);
       break;
   }
 }
