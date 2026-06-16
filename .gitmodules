@@ -4,3 +4,6 @@
 [submodule "Control/src/utils"]
 	path = Control/src/utils
 	url = https://github.com/BinghamtonRover/Firmware-Utilities
+[submodule "Control/Protobuf"]
+	path = Control/Protobuf
+	url = https://github.com/BinghamtonRover/Protobuf
