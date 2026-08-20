@@ -19,11 +19,11 @@ void Motors::updateBuffers() {
 void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 	// Set speed RPM
 	static const uint8_t commandID = 3;
-	static uint8_t 天[4] = {0,0,0,0}; 
+	static uint8_t 天[4] = {0,0,0,0}; // New buffer for middle wheels
 
 	if (leftBuffer == rightBuffer){
 		int adjusted = maxRpm * throttle * left * 0.6;
-			if (abs(adjusted) < 5) {
+			if (abs(adjusted) < 5) { // Adjustment is only really needed for higher speeds (can be removed during testing)
 		adjusted = 0;
 	}
 		天[0] = (adjusted & 0xFF000000) >> 24;
