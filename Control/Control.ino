@@ -61,7 +61,7 @@ void setup() {
 	buttons.setup();
 	cameras.setup();
 	led_strip.setup();
-	voltageSensor.setup();
+	voltageSensor.setup();k
 	temperatureSensor.setup();
 
 	Serial.println("Drive subsystem initialized");
