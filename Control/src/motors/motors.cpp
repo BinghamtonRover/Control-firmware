@@ -32,7 +32,7 @@ void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 		}
 		if (abs(adjustedR) < 5) { 
 		adjustedR = 0;
-
+		}
 		LeftMotorAdjusted[0] = (adjustedL & 0xFF000000) >> 24;
 		LeftMotorAdjusted[1] = (adjustedL & 0x00FF0000) >> 16;
 		LeftMotorAdjusted[2] = (adjustedL & 0x0000FF00) >> 8;
@@ -42,7 +42,7 @@ void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 		RightMotorAdjusted[1] = (adjustedR & 0x00FF0000) >> 16;
 		RightMotorAdjusted[2] = (adjustedR & 0x0000FF00) >> 8;
 		RightMotorAdjusted[3] = (adjustedR & 0x000000FF);
-		}
+		
 	}
 	else {
 		LeftMotorAdjusted[0] = leftBuffer[0];
