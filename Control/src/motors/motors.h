@@ -1,7 +1,7 @@
 #include "../drive.pb.h"
 #include "../utils/BURT_can.h"
 
-const int maxRpm = 40'000;
+const int maxRpm = 90'000;
 
 #define FRONT_LEFT_MOTOR_ID 2
 #define MIDDLE_LEFT_MOTOR_ID 12
