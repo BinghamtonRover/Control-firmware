@@ -8,7 +8,7 @@ const int maxCurrent = 9'000;
 #define MIDDLE_LEFT_MOTOR_ID 12
 #define BACK_LEFT_MOTOR_ID 5
 #define FRONT_RIGHT_MOTOR_ID 13
-#define MIDDLE_RIGHT_MOTOR_ID 10
+#define MIDDLE_RIGHT_MOTOR_ID 20
 #define BACK_RIGHT_MOTOR_ID 11
 
 typedef enum MotorControlScheme {
