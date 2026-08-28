@@ -18,7 +18,9 @@ void Motors::updateBuffers() {
 
 void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 	// Set speed RPM
-	static const uint8_t commandID = 3;
+
+	static const uint8_t commandID = Set_Velocity;
+
 	uint8_t LeftMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
 	uint8_t RightMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
 
@@ -42,7 +44,7 @@ void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 		RightMotorAdjusted[1] = (adjustedR & 0x00FF0000) >> 16;
 		RightMotorAdjusted[2] = (adjustedR & 0x0000FF00) >> 8;
 		RightMotorAdjusted[3] = (adjustedR & 0x000000FF);
-		
+
 	}
 	else {
 		LeftMotorAdjusted[0] = leftBuffer[0];
