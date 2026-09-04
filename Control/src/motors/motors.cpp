@@ -17,39 +17,51 @@ void Motors::updateBuffers() {
 }
 
 void Motors::sendMotorCommands(BurtCan<Can1>& can) {
+	// Set speed RPM
 	static const uint8_t commandID = Set_Velocity;
-	uint8_t leftMiddle[4], rightMiddle[4];
 
-	// Apply 0.6 reduction for middle wheels when turning
-	if (((left < 0) && (right < 0)) || ((left > 0) && (right > 0))) {
+	uint8_t LeftMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
+	uint8_t RightMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
+
+	if (((left < 0) && (right < 0)) || ((left > 0) && (right > 0))){
 		int adjustedL = maxRpm * throttle * left * 0.6;
 		int adjustedR = maxRpm * throttle * right * 0.6;
 
-		if (abs(adjustedL) < 5) adjustedL = 0;
-		if (abs(adjustedR) < 5) adjustedR = 0;
+		if (abs(adjustedL) < 5) { 
+		adjustedL = 0;
+		}
+		if (abs(adjustedR) < 5) { 
+		adjustedR = 0;
+		}
+		LeftMotorAdjusted[0] = (adjustedL & 0xFF000000) >> 24;
+		LeftMotorAdjusted[1] = (adjustedL & 0x00FF0000) >> 16;
+		LeftMotorAdjusted[2] = (adjustedL & 0x0000FF00) >> 8;
+		LeftMotorAdjusted[3] = (adjustedL & 0x000000FF);
 
-		leftMiddle[0] = (adjustedL >> 24) & 0xFF;
-		leftMiddle[1] = (adjustedL >> 16) & 0xFF;
-		leftMiddle[2] = (adjustedL >> 8) & 0xFF;
-		leftMiddle[3] = adjustedL & 0xFF;
+		RightMotorAdjusted[0] = (adjustedR & 0xFF000000) >> 24;
+		RightMotorAdjusted[1] = (adjustedR & 0x00FF0000) >> 16;
+		RightMotorAdjusted[2] = (adjustedR & 0x0000FF00) >> 8;
+		RightMotorAdjusted[3] = (adjustedR & 0x000000FF);
 
-		rightMiddle[0] = (adjustedR >> 24) & 0xFF;
-		rightMiddle[1] = (adjustedR >> 16) & 0xFF;
-		rightMiddle[2] = (adjustedR >> 8) & 0xFF;
-		rightMiddle[3] = adjustedR & 0xFF;
-	} else {
-		// Use standard buffers for forward/backward motion
-		std::memcpy(leftMiddle, leftBuffer, 4);
-		std::memcpy(rightMiddle, rightBuffer, 4);
 	}
+	else {
+		LeftMotorAdjusted[0] = leftBuffer[0];
+		LeftMotorAdjusted[1] = leftBuffer[1];
+		LeftMotorAdjusted[2] = leftBuffer[2];
+		LeftMotorAdjusted[3] = leftBuffer[3];
 
-	// Send commands: front/back use standard buffers, middle use adjusted
+		RightMotorAdjusted[0] = rightBuffer[0];
+		RightMotorAdjusted[1] = rightBuffer[1];
+		RightMotorAdjusted[2] = rightBuffer[2];
+		RightMotorAdjusted[3] = rightBuffer[3];
+	}
 	can.sendRaw(FRONT_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
-	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), leftMiddle, 4);
+	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), LeftMotorAdjusted, 4);
 	can.sendRaw(BACK_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
 	can.sendRaw(FRONT_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
-	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), rightMiddle, 4);
+	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), RightMotorAdjusted, 4);
 	can.sendRaw(BACK_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	
 }
 
 void Motors::handleMotorOutput(const CanMessage& message) {
@@ -105,6 +117,7 @@ void Motors::handleMotorOutput(const CanMessage& message) {
 	case MIDDLE_RIGHT_MOTOR_ID:
 		data.middle_right_motor = motorData;
 		data.has_middle_right_motor = true;
+		//Serial.println("Middle right motor data received");
 		break;
 	case BACK_RIGHT_MOTOR_ID:
 		data.back_right_motor = motorData;
