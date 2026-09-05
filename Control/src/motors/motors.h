@@ -1,14 +1,26 @@
 #include "../drive.pb.h"
 #include "../utils/BURT_can.h"
 
-const int maxRpm = 40'000;
+const int maxRpm = 90'000;
+const int maxCurrent = 9'000;
 
 #define FRONT_LEFT_MOTOR_ID 2
-#define MIDDLE_LEFT_MOTOR_ID 5
-#define BACK_LEFT_MOTOR_ID 12
+#define MIDDLE_LEFT_MOTOR_ID 12
+#define BACK_LEFT_MOTOR_ID 5
 #define FRONT_RIGHT_MOTOR_ID 13
-#define MIDDLE_RIGHT_MOTOR_ID 10
+#define MIDDLE_RIGHT_MOTOR_ID 20
 #define BACK_RIGHT_MOTOR_ID 11
+
+typedef enum MotorControlScheme {
+  Set_Duty = 0,
+  Set_Current = 1,
+  Set_Brake_Current = 2,
+  Set_Velocity = 3,
+  Set_Hold_Position = 4,
+  Set_Origin = 5,
+  Set_Pos_Vel = 6,
+  Set_MIT = 8
+} MoterControlScheme;
 
 /// A wrapper class to control all the motors.
 ///

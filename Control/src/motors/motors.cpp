@@ -18,13 +18,50 @@ void Motors::updateBuffers() {
 
 void Motors::sendMotorCommands(BurtCan<Can1>& can) {
 	// Set speed RPM
-	static const uint8_t commandID = 3;
+	static const uint8_t commandID = Set_Velocity;
+
+	uint8_t LeftMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
+	uint8_t RightMotorAdjusted[4] = {0,0,0,0}; // New buffer for middle wheels
+
+	if (((left < 0) && (right < 0)) || ((left > 0) && (right > 0))){
+		int adjustedL = maxRpm * throttle * left * 0.6;
+		int adjustedR = maxRpm * throttle * right * 0.6;
+
+		if (abs(adjustedL) < 5) { 
+		adjustedL = 0;
+		}
+		if (abs(adjustedR) < 5) { 
+		adjustedR = 0;
+		}
+		LeftMotorAdjusted[0] = (adjustedL & 0xFF000000) >> 24;
+		LeftMotorAdjusted[1] = (adjustedL & 0x00FF0000) >> 16;
+		LeftMotorAdjusted[2] = (adjustedL & 0x0000FF00) >> 8;
+		LeftMotorAdjusted[3] = (adjustedL & 0x000000FF);
+
+		RightMotorAdjusted[0] = (adjustedR & 0xFF000000) >> 24;
+		RightMotorAdjusted[1] = (adjustedR & 0x00FF0000) >> 16;
+		RightMotorAdjusted[2] = (adjustedR & 0x0000FF00) >> 8;
+		RightMotorAdjusted[3] = (adjustedR & 0x000000FF);
+
+	}
+	else {
+		LeftMotorAdjusted[0] = leftBuffer[0];
+		LeftMotorAdjusted[1] = leftBuffer[1];
+		LeftMotorAdjusted[2] = leftBuffer[2];
+		LeftMotorAdjusted[3] = leftBuffer[3];
+
+		RightMotorAdjusted[0] = rightBuffer[0];
+		RightMotorAdjusted[1] = rightBuffer[1];
+		RightMotorAdjusted[2] = rightBuffer[2];
+		RightMotorAdjusted[3] = rightBuffer[3];
+	}
 	can.sendRaw(FRONT_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
-	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
+	can.sendRaw(MIDDLE_LEFT_MOTOR_ID | (commandID << 8), LeftMotorAdjusted, 4);
 	can.sendRaw(BACK_LEFT_MOTOR_ID | (commandID << 8), leftBuffer, 4);
 	can.sendRaw(FRONT_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
-	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	can.sendRaw(MIDDLE_RIGHT_MOTOR_ID | (commandID << 8), RightMotorAdjusted, 4);
 	can.sendRaw(BACK_RIGHT_MOTOR_ID | (commandID << 8), rightBuffer, 4);
+	
 }
 
 void Motors::handleMotorOutput(const CanMessage& message) {
@@ -41,7 +78,10 @@ void Motors::handleMotorOutput(const CanMessage& message) {
 
 	const uint8_t* rawData = message.buf;
 
-	// - Position as a signed, 16-bit integer on bytes 0 and 1, unused
+	// - Position as a signed, 16-bit integer on bytes 0 and 1
+	int16_t positionInt = static_cast<int16_t>((rawData[0] << 8) | rawData[1]);
+	motorData.position = positionInt;
+
 	// - Speed as a signed, 16-bit integer on bytes 2 and 3, multiplied by 10
 	int16_t speedInt = static_cast<int16_t>((rawData[2] << 8) | rawData[3]);
 	motorData.speed = speedInt * 10.0f;
@@ -80,6 +120,7 @@ void Motors::handleMotorOutput(const CanMessage& message) {
 	case MIDDLE_RIGHT_MOTOR_ID:
 		data.middle_right_motor = motorData;
 		data.has_middle_right_motor = true;
+		//Serial.println("Middle right motor data received");
 		break;
 	case BACK_RIGHT_MOTOR_ID:
 		data.back_right_motor = motorData;
