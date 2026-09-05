@@ -71,6 +71,7 @@ typedef struct _DriveMotorData {
     float current;
     int32_t temperature;
     MotorErrorCode error;
+    int32_t position;
 } DriveMotorData;
 
 typedef struct _DriveData {
@@ -96,6 +97,12 @@ typedef struct _DriveData {
     float battery_temperature;
     bool has_version;
     Version version;
+    float position;
+    float speed;
+    bool test_flag;
+    float acceleration;
+    bool set_zero;
+    bool reserved; /* Protobuf is bugging out if I don't have a reserved field here, so I'm just going to add one. */
     ProtoColor color;
     RoverStatus status;
     /* Contains the DriveMotorData for each corresponding motor */
@@ -143,11 +150,11 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define DriveCommand_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, _RoverStatus_MIN, false, Version_init_default, _ProtoColor_MIN, _BoolState_MIN}
-#define DriveMotorData_init_default              {0, 0, 0, _MotorErrorCode_MIN}
-#define DriveData_init_default                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, Version_init_default, _ProtoColor_MIN, _RoverStatus_MIN, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default}
+#define DriveMotorData_init_default              {0, 0, 0, _MotorErrorCode_MIN, 0}
+#define DriveData_init_default                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, Version_init_default, 0, 0, 0, 0, 0, 0, _ProtoColor_MIN, _RoverStatus_MIN, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default, false, DriveMotorData_init_default}
 #define DriveCommand_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, _RoverStatus_MIN, false, Version_init_zero, _ProtoColor_MIN, _BoolState_MIN}
-#define DriveMotorData_init_zero                 {0, 0, 0, _MotorErrorCode_MIN}
-#define DriveData_init_zero                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, Version_init_zero, _ProtoColor_MIN, _RoverStatus_MIN, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero}
+#define DriveMotorData_init_zero                 {0, 0, 0, _MotorErrorCode_MIN, 0}
+#define DriveData_init_zero                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, Version_init_zero, 0, 0, 0, 0, 0, 0, _ProtoColor_MIN, _RoverStatus_MIN, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero, false, DriveMotorData_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define DriveCommand_throttle_tag                1
@@ -168,6 +175,7 @@ extern "C" {
 #define DriveMotorData_current_tag               2
 #define DriveMotorData_temperature_tag           3
 #define DriveMotorData_error_tag                 4
+#define DriveMotorData_position_tag              5
 #define DriveData_throttle_tag                   1
 #define DriveData_left_tag                       2
 #define DriveData_right_tag                      3
@@ -182,6 +190,12 @@ extern "C" {
 #define DriveData_battery_current_tag            12
 #define DriveData_battery_temperature_tag        13
 #define DriveData_version_tag                    14
+#define DriveData_position_tag                   15
+#define DriveData_speed_tag                      16
+#define DriveData_test_flag_tag                  17
+#define DriveData_acceleration_tag               18
+#define DriveData_set_zero_tag                   19
+#define DriveData_reserved_tag                   20
 #define DriveData_color_tag                      21
 #define DriveData_status_tag                     22
 #define DriveData_front_left_motor_tag           23
@@ -215,7 +229,8 @@ X(a, STATIC,   SINGULAR, UENUM,    blink,            14)
 X(a, STATIC,   SINGULAR, FLOAT,    speed,             1) \
 X(a, STATIC,   SINGULAR, FLOAT,    current,           2) \
 X(a, STATIC,   SINGULAR, INT32,    temperature,       3) \
-X(a, STATIC,   SINGULAR, UENUM,    error,             4)
+X(a, STATIC,   SINGULAR, UENUM,    error,             4) \
+X(a, STATIC,   SINGULAR, INT32,    position,          5)
 #define DriveMotorData_CALLBACK NULL
 #define DriveMotorData_DEFAULT NULL
 
@@ -234,6 +249,12 @@ X(a, STATIC,   SINGULAR, FLOAT,    battery_voltage,  11) \
 X(a, STATIC,   SINGULAR, FLOAT,    battery_current,  12) \
 X(a, STATIC,   SINGULAR, FLOAT,    battery_temperature,  13) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  version,          14) \
+X(a, STATIC,   SINGULAR, FLOAT,    position,         15) \
+X(a, STATIC,   SINGULAR, FLOAT,    speed,            16) \
+X(a, STATIC,   SINGULAR, BOOL,     test_flag,        17) \
+X(a, STATIC,   SINGULAR, FLOAT,    acceleration,     18) \
+X(a, STATIC,   SINGULAR, BOOL,     set_zero,         19) \
+X(a, STATIC,   SINGULAR, BOOL,     reserved,         20) \
 X(a, STATIC,   SINGULAR, UENUM,    color,            21) \
 X(a, STATIC,   SINGULAR, UENUM,    status,           22) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  front_left_motor,  23) \
@@ -264,8 +285,8 @@ extern const pb_msgdesc_t DriveData_msg;
 /* Maximum encoded size of messages (where known) */
 #define DRIVE_PB_H_MAX_SIZE                      DriveData_size
 #define DriveCommand_size                        71
-#define DriveData_size                           242
-#define DriveMotorData_size                      23
+#define DriveData_size                           334
+#define DriveMotorData_size                      34
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -78,7 +78,10 @@ void Motors::handleMotorOutput(const CanMessage& message) {
 
 	const uint8_t* rawData = message.buf;
 
-	// - Position as a signed, 16-bit integer on bytes 0 and 1, unused
+	// - Position as a signed, 16-bit integer on bytes 0 and 1
+	int16_t positionInt = static_cast<int16_t>((rawData[0] << 8) | rawData[1]);
+	motorData.position = positionInt;
+
 	// - Speed as a signed, 16-bit integer on bytes 2 and 3, multiplied by 10
 	int16_t speedInt = static_cast<int16_t>((rawData[2] << 8) | rawData[3]);
 	motorData.speed = speedInt * 10.0f;
